@@ -37,9 +37,9 @@ check_root() {
 
 install_sun_jdk()
 {
-    add-apt-repository "deb http://archive.canonical.com/ lucid partner"
+    add-apt-repository ppa:webupd8team/java
     apt-get update
-    apt-get install sun-java6-jdk
+    apt-get install oracle-java6-installer 
 }
 
 install_arch_packages()
@@ -234,7 +234,7 @@ prepare_environment()
         
         mkdir -p $working_directory
         cd $working_directory
-        repo init -u git://github.com/CyanogenMod/android.git -b $branch
+        repo init -u git://git.odroid.com/cyanogen/CyanogenMod/android.git -b $branch
         repo sync
         echo "Sources synced to $working_directory"        
         exit
