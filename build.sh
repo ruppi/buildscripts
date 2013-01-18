@@ -76,6 +76,7 @@ install_ubuntu_packages()
     python-markdown libxml2-utils xsltproc zlib1g-dev:i386 pngcrush
 }
 
+
 prepare_environment()
 {
     echo "Which 64-bit distribution are you running?"
@@ -154,7 +155,10 @@ prepare_environment()
         exit
         ;;
     esac
-    
+}
+
+sync_repository()
+{
     echo "Do you want us to get android sources for you? (y/n)"
     read -n1 sources
     echo -e "\r\n"
@@ -197,21 +201,21 @@ prepare_environment()
         echo "Target Directory (~/android/system):"
         read working_directory
 
-        if [ ! -n $working_directory ]; then 
+        if [ -z $working_directory ]; then 
             working_directory="~/android/system"
         fi
 
         echo "Installing to $working_directory"
-        mkdir ~/bin
+        mkdir -p ~/bin
         export PATH=~/bin:$PATH
         curl https://dl-ssl.google.com/dl/googlesource/git-repo/repo > ~/bin/repo
         chmod a+x ~/bin/repo        
         
         mkdir -p $working_directory
         cd $working_directory
-        repo init -u git://git.odroid.com/cyanogen/CyanogenMod/android.git -b $branch
+        repo init -u git://github.com/ruppi/android.git -b $branch
         mkdir -p .repo/local_manifests
-        curl https://raw.github.com/ruppi/buildscripts/$branch/my_manifest.xml > $working_directory/.repo/local_manifests/my_manifest.xml
+        curl https://raw.github.com/ruppi/buildscripts/$branch/my_manifest.xml > .repo/local_manifests/my_manifest.xml
         repo sync -j15
         echo "Sources synced to $working_directory"        
         exit
@@ -221,8 +225,8 @@ prepare_environment()
         exit
         ;;
     esac
-}
 
+}
 # create kernel zip after successfull build
 create_kernel_zip()
 {
@@ -281,6 +285,7 @@ echo -e "${txtblu}          |_|  |______/_/    \_\_|  |_|_|  |_/_/    \_\_____|_
 echo -e "${txtblu} \r\n"
 echo -e "${txtblu}                                   CyanogenMod ${CM_VERSION} buildscript"
 echo -e "${txtblu}                             visit us @ http://www.teamhacksung.org"
+echo -e "${txtblu}                             modified by Hakjoo Kim ruppi.kim@hardkernel.com"
 echo -e "${txtblu} \r\n"
 echo -e "${txtblu} ###################################################################################################"
 echo -e "\r\n ${txtrst}"
@@ -291,7 +296,8 @@ if [ -z "${CMD}" ]; then
 	echo -e "${txtred}Usage: ./build.sh i9300 (complete build)"
 	echo -e "${txtred}       ./build.sh i9300 kernel (bootimage only)"
 	echo -e "${txtred}       ./build.sh clean"
-    echo -e "${txtred}       ./build.sh prepare (prepares the build environment)"
+    echo -e "${txtred}       sudo ./build.sh prepare (prepares the build environment)"
+    echo -e "${txtred}       ./build.sh sync (get android sources)"
     echo -e "\r\n ${txtrst}"
     exit
 fi
@@ -305,6 +311,10 @@ case "$CMD" in
         check_root
         check_machine_type
         prepare_environment
+        exit
+        ;;
+    sync)
+		sync_repository
         exit
         ;;
     clean)
